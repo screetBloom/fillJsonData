@@ -19,21 +19,18 @@
         return executeF(target, objects);
     }
 
-    function executeDeepMerge (target, _objects = [], _options = {}) {
+    function executeF (target, obs = [], _options = {}) {
 
         const options = {
             arrayBehaviour: _options.arrayBehaviour || 'replace',  // Can be "merge" or "replace".
         };
 
         // Ensure we have actual objects for each.
-        const objects = _objects.map(object => object || {});
+        const objects = obs.map(object => object || {});
         const output = target || {};
 
-        // Enumerate the objects and their keys.
-        for (let oindex = 0; oindex < objects.length; oindex++) {
-            const object = objects[oindex];
-            const keys = Object.keys(object);
-
+        objects.forEach((item, index) => {
+            const keys = Object.keys(item);
             for (let kindex = 0; kindex < keys.length; kindex++) {
                 const key = keys[kindex];
                 const value = object[key];
@@ -49,7 +46,6 @@
                         output[key] = quickCloneObject(value);
                     }
                 }
-
                 else if (type === 'array') {
                     if (existingValueType === 'array') {
                         const newValue = quickCloneArray(value);
@@ -59,13 +55,13 @@
                         output[key] = quickCloneArray(value);
                     }
                 }
-
                 else {
                     output[key] = value;
                 }
-
             }
-        }
+        });
+
+
 
         return output;
     }
