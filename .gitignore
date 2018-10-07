@@ -1,4 +1,6 @@
 .idea
+.idea/
+*.xml
 .vscode
 dist/
 node_modules/
