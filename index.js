@@ -1,3 +1,4 @@
+
 function _isType(obj, type) {
     return (
         Object.prototype.toString.call(obj).toLowerCase() === '[object ' + type + ']'
@@ -6,23 +7,23 @@ function _isType(obj, type) {
 
 function _type(obj) {
     return (
-        Object.prototype.toString.call(obj).toLowerCase().split(' ')[1].replace(']', '')
+        Object.prototype.toString.call(obj).toLowerCase().split(' ')[1].replace(']','')
     );
 }
 
-function quickCloneObject(input) {
+function quickCloneObject (input) {
     const output = {};
-    Object.keys(input).forEach((key) => {
+    Object.keys(input).forEach((key)=> {
         output[key] = cloneValue(input[key]);
     });
     return output;
 }
 
-function quickCloneArray(input) {
+function quickCloneArray (input) {
     return input.map(cloneValue);
 }
 
-function cloneValue(value) {
+function cloneValue (value) {
     if (_isType(value, 'object')) {
         return quickCloneObject(value);
     }
@@ -32,7 +33,7 @@ function cloneValue(value) {
     return value;
 }
 
-function executeF(target, obs = []) {
+function executeF (target, obs = []) {
     // 若传入有不合理数据，都转为对象
     const objects = obs.map(object => object || {});
     const output = target || {};
@@ -55,7 +56,11 @@ function executeF(target, obs = []) {
             else if (type === 'array') {
                 output[key] = quickCloneArray(value);
             }
+            else if (type === 'undefined' || type === 'null'){
+                // do nothing
+            }
             else {
+                // merge
                 output[key] = value;
             }
         });
@@ -63,6 +68,14 @@ function executeF(target, obs = []) {
     return output;
 }
 
-function deepAssign(target, ...objects) {
+/*
+ *@fillJsonData: 填充json数据
+ *@param {object || array} target 目标的数据格式
+ *@param {object || array} object 目前还只是当前残缺的数据
+*/
+function fillJsonData (target, ...objects) {
     return executeF(target, objects);
 }
+
+window.fillJsonData = fillJsonData;
+
