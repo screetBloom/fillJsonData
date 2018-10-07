@@ -8,65 +8,124 @@
 
 <script>
 
-
     function _isType(obj, type) {
         return (
             Object.prototype.toString.call(obj).toLowerCase() === '[object ' + type + ']'
         );
     }
 
-    function deepAssign (target, ...objects) {
-        return executeF(target, objects);
+    function _type(obj) {
+        return (
+            Object.prototype.toString.call(obj).toLowerCase().split(' ')[1].replace(']','')
+        );
     }
 
-    function executeF (target, obs = [], _options = {}) {
-        const options = {
-            arrayBehaviour: _options.arrayBehaviour || 'replace',  // Can be "merge" or "replace".
-        };
+    function quickCloneObject (input) {
+        const output = {};
+        Object.keys(input).forEach((key)=> {
+            output[key] = cloneValue(input[key]);
+        });
+        return output;
+    }
 
-        // Ensure we have actual objects for each.
+    function quickCloneArray (input) {
+        return input.map(cloneValue);
+    }
+
+    function cloneValue (value) {
+        if (_isType(value, 'object')) {
+            return quickCloneObject(value);
+        }
+        else if (_isType(value, 'array')) {
+            return quickCloneArray(value);
+        }
+        return value;
+    }
+
+    function executeF (target, obs = []) {
+        // 若传入有不合理数据，都转为对象
         const objects = obs.map(object => object || {});
         const output = target || {};
 
-        objects.forEach((item, index) => {
+        objects.forEach((item) => {
             const keys = Object.keys(item);
-            for (let kindex = 0; kindex < keys.length; kindex++) {
-                const key = keys[kindex];
-                const value = object[key];
-                const type = getTypeOf(value);
-                const existingValueType = getTypeOf(output[key]);
-
+            keys.forEach((key) => {
+                const value = item[key];
+                const type = _type(value);
+                const targetValueType = _type(output[key]);
                 if (type === 'object') {
-                    if (existingValueType !== 'undefined') {
-                        const existingValue = (existingValueType === 'object' ? output[key] : {});
-                        output[key] = executeDeepMerge({}, [existingValue, quickCloneObject(value)], options);
-                    }
-                    else {
+                    if (targetValueType !== 'undefined') {
+                        // 这里是用item去覆盖target，item已经为object，若target为object则需要去混合属性否则直接替换
+                        const targetValue = (targetValueType === 'object' ? output[key] : {});
+                        output[key] = executeF({}, [targetValue, quickCloneObject(value)]);
+                    } else {
                         output[key] = quickCloneObject(value);
                     }
                 }
                 else if (type === 'array') {
-                    if (existingValueType === 'array') {
-                        const newValue = quickCloneArray(value);
-                        output[key] = (options.arrayBehaviour === 'merge' ? output[key].concat(newValue) : newValue);
-                    }
-                    else {
-                        output[key] = quickCloneArray(value);
-                    }
+                    output[key] = quickCloneArray(value);
+                }
+                else if (type === 'undefined' || type === 'null'){
+                    // do nothing
                 }
                 else {
+                    // merge
                     output[key] = value;
                 }
-            }
+            });
         });
-
-
-
         return output;
     }
 
+    /*
+     *@fillJsonData: 填充json数据
+     *@param {object || array} target 目标的数据格式
+     *@param {object || array} object 目前还只是当前残缺的数据
+     *@param {object} option 后续配置信息
+    */
+    function fillJsonData (target, object, option) {
+        return executeF(target, object);
+    }
 
+    const A = {
+        name: ``,
+        age: ``,
+        foods: [],
+        child: {
+            super: '',
+            name: '',
+            age: ``,
+            foods: [],
+            children: {
+                super: '',
+                name: '',
+                age: ``,
+                foods: [],
+            }
+        },
+        test: ['', '', {
+            name: '',
+            children: {
+                name: '',
+                test: []
+            }
+        }],
+    };
 
+    const B = {
+        name: `jugg`,
+        address: `hangzhou`,
+        child: {
+            super: 'jugg',
+            foods: ['beef'],
+            children: {
+                foods: ['potato'],
+            }
+        },
+    };
+
+    let res = fillJsonData(A, B);
+    console.log(JSON.stringify(res));
 
 </script>
 
