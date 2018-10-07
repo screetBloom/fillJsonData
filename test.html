@@ -7,31 +7,8 @@
 <body>
 
 <script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="config.js"></script>
 <script>
-    const A = {
-        name: ``,
-        age: ``,
-        foods: [],
-        child: {
-            super: '',
-            name: '',
-            age: ``,
-            foods: [],
-            children: {
-                super: '',
-                name: '',
-                age: ``,
-                foods: [],
-            }
-        },
-        test: ['', '', {
-            name: '',
-            children: {
-                name: '',
-                test: []
-            }
-        }],
-    };
 
     const B = {
         name: `jugg`,
@@ -45,7 +22,7 @@
         },
     };
 
-    let res = fillJsonData(A, B);
+    let res = fillJsonData(target.A, B);
     console.log(JSON.stringify(res));
 
 </script>
