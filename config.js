@@ -1,6 +1,6 @@
 
 const A = {
-    name: ``,
+    name: `aaa`,
     age: ``,
     foods: [],
     child: {
